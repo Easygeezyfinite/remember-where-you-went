@@ -108,7 +108,7 @@ const RetroMediaPlayer = forwardRef<HTMLDivElement, RetroMediaPlayerProps>(
     return (
       <div
         ref={ref}
-        className="fixed bottom-4 right-4 z-50 select-none"
+        className="fixed top-4 right-4 z-50 select-none"
         style={{ fontFamily: 'Tahoma, Arial, sans-serif' }}
       >
         {/* Main Window */}
