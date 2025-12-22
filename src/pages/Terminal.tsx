@@ -98,9 +98,15 @@ const Terminal = () => {
 
   return (
     <div 
-      className="min-h-screen w-full bg-black p-4 md:p-8 overflow-auto cursor-pointer"
+      className="min-h-screen w-full bg-black p-4 md:p-8 cursor-pointer"
       onClick={() => currentLineIndex >= terminalContent.length && handleExit()}
-      style={{ fontFamily: '"Courier New", "Lucida Console", Monaco, monospace' }}
+      style={{ 
+        fontFamily: '"Courier New", "Lucida Console", Monaco, monospace',
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
+        height: '100%',
+        minHeight: '100dvh',
+      }}
     >
       {/* CRT scanline effect */}
       <div 
