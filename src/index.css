@@ -2,95 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Windows XP Nostalgic Design System */
 
 @layer base {
   :root {
+    /* Core Windows XP Colors */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
+    --foreground: 0 0% 0%;
+    
+    /* Windows XP Title Bar Blue Gradient */
+    --win-titlebar-start: 213 80% 50%;
+    --win-titlebar-end: 213 80% 35%;
+    --win-titlebar-text: 0 0% 100%;
+    
+    /* Windows XP Button and Content Area */
+    --win-content-bg: 40 20% 90%;
+    --win-button-face: 40 15% 88%;
+    --win-button-highlight: 0 0% 100%;
+    --win-button-shadow: 0 0% 50%;
+    --win-button-dark-shadow: 0 0% 25%;
+    --win-button-text: 0 0% 0%;
+    
+    /* Dialog Border */
+    --win-border-outer: 213 70% 45%;
+    --win-border-inner: 0 0% 100%;
+    
+    /* Close Button */
+    --win-close-bg: 0 70% 55%;
+    --win-close-hover: 0 70% 45%;
+    
+    /* Globe Icon */
+    --win-globe-ocean: 200 80% 50%;
+    --win-globe-land: 120 50% 40%;
+    
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 0 0% 0%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
+    --popover-foreground: 0 0% 0%;
+    --primary: 213 80% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 40 20% 90%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 40 15% 85%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 213 70% 45%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 70%;
+    --input: 0 0% 70%;
+    --ring: 213 80% 50%;
+    --radius: 0rem;
+    
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 0 0% 10%;
+    --foreground: 0 0% 95%;
   }
 }
 
@@ -101,5 +77,211 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+}
+
+/* Windows XP Dialog Component Styles */
+@layer components {
+  .windows-dialog {
+    @apply shadow-xl cursor-pointer;
+    min-width: 280px;
+    max-width: 320px;
+    font-family: 'Tahoma', 'Segoe UI', sans-serif;
+    border: 3px solid hsl(var(--win-border-outer));
+    border-radius: 8px 8px 4px 4px;
+    overflow: hidden;
+    box-shadow: 
+      0 0 0 1px hsl(var(--win-border-outer)),
+      2px 2px 10px rgba(0, 0, 0, 0.3),
+      inset 0 0 0 1px hsl(var(--win-border-inner) / 0.5);
+    transition: transform 0.1s ease;
+  }
+  
+  .windows-dialog:hover {
+    transform: scale(1.02);
+  }
+  
+  .windows-dialog:active {
+    transform: scale(0.99);
+  }
+  
+  .windows-titlebar {
+    background: linear-gradient(
+      180deg,
+      hsl(213, 85%, 55%) 0%,
+      hsl(213, 80%, 50%) 10%,
+      hsl(213, 75%, 42%) 50%,
+      hsl(213, 80%, 48%) 51%,
+      hsl(213, 70%, 35%) 100%
+    );
+    padding: 3px 4px 3px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 22px;
+  }
+  
+  .windows-title {
+    color: hsl(var(--win-titlebar-text));
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+    letter-spacing: 0.3px;
+  }
+  
+  .windows-close-btn {
+    width: 21px;
+    height: 21px;
+    background: linear-gradient(
+      180deg,
+      hsl(0, 75%, 65%) 0%,
+      hsl(0, 70%, 55%) 45%,
+      hsl(0, 65%, 45%) 50%,
+      hsl(0, 70%, 50%) 100%
+    );
+    border: 1px solid hsl(0, 50%, 30%);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: inset 1px 1px 0 hsl(0, 70%, 75%);
+  }
+  
+  .windows-close-btn span {
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+    margin-top: -2px;
+  }
+  
+  .windows-close-btn:hover {
+    background: linear-gradient(
+      180deg,
+      hsl(0, 80%, 70%) 0%,
+      hsl(0, 75%, 60%) 45%,
+      hsl(0, 70%, 50%) 50%,
+      hsl(0, 75%, 55%) 100%
+    );
+  }
+  
+  .windows-content {
+    background: hsl(var(--win-content-bg));
+    padding: 12px 16px 16px;
+  }
+  
+  .windows-content-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .windows-icon-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .windows-globe-icon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+  
+  .globe-sphere {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(
+      135deg,
+      hsl(200, 85%, 60%) 0%,
+      hsl(200, 80%, 45%) 50%,
+      hsl(200, 75%, 35%) 100%
+    );
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+      inset -3px -3px 6px rgba(0, 0, 0, 0.3),
+      inset 3px 3px 6px rgba(255, 255, 255, 0.3),
+      1px 1px 2px rgba(0, 0, 0, 0.2);
+  }
+  
+  .globe-land {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: 
+      radial-gradient(ellipse 40% 30% at 30% 35%, hsl(120, 45%, 35%) 0%, transparent 100%),
+      radial-gradient(ellipse 25% 40% at 65% 55%, hsl(120, 50%, 40%) 0%, transparent 100%),
+      radial-gradient(ellipse 20% 20% at 50% 70%, hsl(120, 40%, 30%) 0%, transparent 100%);
+  }
+  
+  .windows-subtitle {
+    color: hsl(var(--foreground));
+    font-size: 11px;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+  
+  .windows-message {
+    color: hsl(var(--foreground));
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    margin: 4px 0 8px;
+  }
+  
+  .windows-button {
+    background: linear-gradient(
+      180deg,
+      hsl(40, 20%, 95%) 0%,
+      hsl(40, 15%, 88%) 45%,
+      hsl(40, 12%, 82%) 50%,
+      hsl(40, 15%, 85%) 100%
+    );
+    border: 1px solid hsl(0, 0%, 50%);
+    border-radius: 3px;
+    padding: 4px 20px;
+    font-family: 'Tahoma', 'Segoe UI', sans-serif;
+    font-size: 11px;
+    cursor: pointer;
+    box-shadow: 
+      inset 1px 1px 0 hsl(0, 0%, 100%),
+      inset -1px -1px 0 hsl(0, 0%, 70%);
+    outline: 1px solid transparent;
+    outline-offset: -4px;
+  }
+  
+  .windows-button:hover {
+    background: linear-gradient(
+      180deg,
+      hsl(40, 25%, 98%) 0%,
+      hsl(40, 18%, 92%) 45%,
+      hsl(40, 15%, 86%) 50%,
+      hsl(40, 18%, 90%) 100%
+    );
+  }
+  
+  .windows-button:active {
+    background: linear-gradient(
+      180deg,
+      hsl(40, 12%, 80%) 0%,
+      hsl(40, 15%, 85%) 100%
+    );
+    box-shadow: 
+      inset 1px 1px 2px hsl(0, 0%, 50%),
+      inset -1px -1px 0 hsl(0, 0%, 95%);
+  }
+  
+  .windows-button:focus {
+    outline: 1px dotted hsl(var(--foreground));
+    outline-offset: -4px;
   }
 }
