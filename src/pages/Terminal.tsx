@@ -44,6 +44,19 @@ const Terminal = () => {
     { text: '[SYSTEM] Press any key or click to return...', delay: 20 },
   ];
 
+  // Enable scrolling on body for this page
+  useEffect(() => {
+    document.body.style.overflow = 'auto';
+    document.body.style.overflowY = 'scroll';
+    document.documentElement.style.overflow = 'auto';
+    
+    return () => {
+      document.body.style.overflow = 'hidden';
+      document.body.style.overflowY = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
+
   // Cursor blink effect
   useEffect(() => {
     const cursorInterval = setInterval(() => {
@@ -103,10 +116,14 @@ const Terminal = () => {
       
       {/* Scrollable content */}
       <div 
-        className="relative z-20 min-h-screen p-4 md:p-8"
+        className="relative z-20 p-4 md:p-8"
         onClick={() => currentLineIndex >= terminalContent.length && handleExit()}
         style={{ 
           fontFamily: '"Courier New", "Lucida Console", Monaco, monospace',
+          minHeight: '100vh',
+          overflowY: 'scroll',
+          WebkitOverflowScrolling: 'touch',
+          touchAction: 'pan-y',
         }}
       >
         {/* Terminal window */}
