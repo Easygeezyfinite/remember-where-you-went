@@ -97,20 +97,103 @@ const Terminal = () => {
     : undefined;
 
   return (
-    <div 
-      className="min-h-screen w-full bg-black p-4 md:p-8 cursor-pointer"
-      onClick={() => currentLineIndex >= terminalContent.length && handleExit()}
-      style={{ 
-        fontFamily: '"Courier New", "Lucida Console", Monaco, monospace',
-        overflowY: 'auto',
-        WebkitOverflowScrolling: 'touch',
-        height: '100%',
-        minHeight: '100dvh',
-      }}
-    >
-      {/* CRT scanline effect */}
+    <>
+      {/* Fixed background */}
+      <div className="fixed inset-0 bg-black" />
+      
+      {/* Scrollable content */}
       <div 
-        className="fixed inset-0 pointer-events-none z-10"
+        className="relative z-20 min-h-screen p-4 md:p-8"
+        onClick={() => currentLineIndex >= terminalContent.length && handleExit()}
+        style={{ 
+          fontFamily: '"Courier New", "Lucida Console", Monaco, monospace',
+        }}
+      >
+        {/* Terminal window */}
+        <div className="max-w-4xl mx-auto pb-20">
+          {/* Terminal header */}
+          <div 
+            className="flex items-center gap-2 px-4 py-2 rounded-t-lg"
+            style={{ 
+              background: 'linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%)',
+              borderBottom: '1px solid #1a1a1a',
+            }}
+          >
+            <div className="flex gap-2">
+              <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-400" onClick={handleExit} />
+              <div className="w-3 h-3 rounded-full bg-yellow-500" />
+              <div className="w-3 h-3 rounded-full bg-green-500" />
+            </div>
+            <span className="text-gray-400 text-sm ml-4">root@success-research:~</span>
+          </div>
+
+          {/* Terminal body */}
+          <div 
+            className="p-4 md:p-6 rounded-b-lg"
+            style={{ 
+              background: 'linear-gradient(180deg, #0a0a0a 0%, #111111 100%)',
+              border: '1px solid #2a2a2a',
+              borderTop: 'none',
+            }}
+          >
+            {/* Completed lines */}
+            {lines.map((line, index) => (
+              <div 
+                key={index} 
+                className="text-sm md:text-base whitespace-pre-wrap leading-relaxed"
+                style={{ 
+                  color: line.color || '#4ade80',
+                  textShadow: line.color 
+                    ? `0 0 10px ${line.color}80` 
+                    : '0 0 10px rgba(0, 255, 0, 0.5)',
+                  minHeight: line.text === '' ? '1.5em' : 'auto',
+                }}
+              >
+                {line.text}
+              </div>
+            ))}
+            
+            {/* Currently typing line */}
+            {currentLineIndex < terminalContent.length && (
+              <div 
+                className="text-sm md:text-base whitespace-pre-wrap leading-relaxed"
+                style={{ 
+                  color: currentTypingColor || '#4ade80',
+                  textShadow: currentTypingColor 
+                    ? `0 0 10px ${currentTypingColor}80` 
+                    : '0 0 10px rgba(0, 255, 0, 0.5)',
+                }}
+              >
+                {currentTypingLine}
+                <span 
+                  className="inline-block w-2 h-4 ml-0.5 align-middle"
+                  style={{ 
+                    backgroundColor: showCursor ? (currentTypingColor || '#4ade80') : 'transparent',
+                    boxShadow: showCursor ? `0 0 10px ${currentTypingColor || 'rgba(0, 255, 0, 0.8)'}` : 'none',
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Final cursor after all text */}
+            {currentLineIndex >= terminalContent.length && (
+              <div className="text-green-400 text-sm md:text-base mt-2">
+                $ <span 
+                  className="inline-block w-2 h-4 ml-0.5 align-middle"
+                  style={{ 
+                    backgroundColor: showCursor ? '#4ade80' : 'transparent',
+                    boxShadow: showCursor ? '0 0 10px rgba(0, 255, 0, 0.8)' : 'none',
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* CRT scanline effect - fixed overlay */}
+      <div 
+        className="fixed inset-0 pointer-events-none z-30"
         style={{
           background: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px)',
         }}
@@ -118,93 +201,12 @@ const Terminal = () => {
       
       {/* CRT glow effect */}
       <div 
-        className="fixed inset-0 pointer-events-none"
+        className="fixed inset-0 pointer-events-none z-30"
         style={{
           boxShadow: 'inset 0 0 150px rgba(0, 255, 0, 0.1)',
         }}
       />
-
-      {/* Terminal window */}
-      <div className="max-w-4xl mx-auto">
-        {/* Terminal header */}
-        <div 
-          className="flex items-center gap-2 px-4 py-2 rounded-t-lg"
-          style={{ 
-            background: 'linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%)',
-            borderBottom: '1px solid #1a1a1a',
-          }}
-        >
-          <div className="flex gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-400" onClick={handleExit} />
-            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-            <div className="w-3 h-3 rounded-full bg-green-500" />
-          </div>
-          <span className="text-gray-400 text-sm ml-4">root@success-research:~</span>
-        </div>
-
-        {/* Terminal body */}
-        <div 
-          className="p-4 md:p-6 rounded-b-lg min-h-[80vh]"
-          style={{ 
-            background: 'linear-gradient(180deg, #0a0a0a 0%, #111111 100%)',
-            border: '1px solid #2a2a2a',
-            borderTop: 'none',
-          }}
-        >
-          {/* Completed lines */}
-          {lines.map((line, index) => (
-            <div 
-              key={index} 
-              className="text-sm md:text-base whitespace-pre-wrap leading-relaxed"
-              style={{ 
-                color: line.color || '#4ade80',
-                textShadow: line.color 
-                  ? `0 0 10px ${line.color}80` 
-                  : '0 0 10px rgba(0, 255, 0, 0.5)',
-                minHeight: line.text === '' ? '1.5em' : 'auto',
-              }}
-            >
-              {line.text}
-            </div>
-          ))}
-          
-          {/* Currently typing line */}
-          {currentLineIndex < terminalContent.length && (
-            <div 
-              className="text-sm md:text-base whitespace-pre-wrap leading-relaxed"
-              style={{ 
-                color: currentTypingColor || '#4ade80',
-                textShadow: currentTypingColor 
-                  ? `0 0 10px ${currentTypingColor}80` 
-                  : '0 0 10px rgba(0, 255, 0, 0.5)',
-              }}
-            >
-              {currentTypingLine}
-              <span 
-                className="inline-block w-2 h-4 ml-0.5 align-middle"
-                style={{ 
-                  backgroundColor: showCursor ? (currentTypingColor || '#4ade80') : 'transparent',
-                  boxShadow: showCursor ? `0 0 10px ${currentTypingColor || 'rgba(0, 255, 0, 0.8)'}` : 'none',
-                }}
-              />
-            </div>
-          )}
-
-          {/* Final cursor after all text */}
-          {currentLineIndex >= terminalContent.length && (
-            <div className="text-green-400 text-sm md:text-base mt-2">
-              $ <span 
-                className="inline-block w-2 h-4 ml-0.5 align-middle"
-                style={{ 
-                  backgroundColor: showCursor ? '#4ade80' : 'transparent',
-                  boxShadow: showCursor ? '0 0 10px rgba(0, 255, 0, 0.8)' : 'none',
-                }}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 
