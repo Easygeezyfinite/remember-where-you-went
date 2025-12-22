@@ -1,9 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+interface TerminalLine {
+  text: string;
+  color?: string;
+}
+
 const Terminal = () => {
   const navigate = useNavigate();
-  const [lines, setLines] = useState<string[]>([]);
+  const [lines, setLines] = useState<TerminalLine[]>([]);
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const [showCursor, setShowCursor] = useState(true);
@@ -26,7 +31,8 @@ const Terminal = () => {
     { text: '[FETCH] Connecting to https://research.edu/success-data/api/v2/mas', delay: 15 },
     { text: '^C', delay: 400 },
     { text: '', delay: 100 },
-    { text: '[CANCELLED] Operation interrupted by user', delay: 15 },
+    { text: '[CANCELLED] Operation interrupted by a tsibkti user', delay: 15 },
+    { text: '¯\\_(ツ)_/¯', delay: 50, color: '#a855f7' },
     { text: '[ERROR] Connection timeout: api.success-research.edu:443', delay: 15 },
     { text: '', delay: 250 },
     { text: '════════════════════════════════════════════════════════════════════', delay: 5 },
@@ -59,7 +65,7 @@ const Terminal = () => {
       return () => clearTimeout(timeout);
     } else {
       const timeout = setTimeout(() => {
-        setLines(prev => [...prev, currentLine.text]);
+        setLines(prev => [...prev, { text: currentLine.text, color: currentLine.color }]);
         setCurrentLineIndex(prev => prev + 1);
         setCurrentCharIndex(0);
       }, 50);
@@ -85,6 +91,10 @@ const Terminal = () => {
   const currentTypingLine = currentLineIndex < terminalContent.length 
     ? terminalContent[currentLineIndex].text.substring(0, currentCharIndex)
     : '';
+  
+  const currentTypingColor = currentLineIndex < terminalContent.length 
+    ? terminalContent[currentLineIndex].color
+    : undefined;
 
   return (
     <div 
@@ -139,28 +149,36 @@ const Terminal = () => {
           {lines.map((line, index) => (
             <div 
               key={index} 
-              className="text-green-400 text-sm md:text-base whitespace-pre-wrap leading-relaxed"
+              className="text-sm md:text-base whitespace-pre-wrap leading-relaxed"
               style={{ 
-                textShadow: '0 0 10px rgba(0, 255, 0, 0.5)',
-                minHeight: line === '' ? '1.5em' : 'auto',
+                color: line.color || '#4ade80',
+                textShadow: line.color 
+                  ? `0 0 10px ${line.color}80` 
+                  : '0 0 10px rgba(0, 255, 0, 0.5)',
+                minHeight: line.text === '' ? '1.5em' : 'auto',
               }}
             >
-              {line}
+              {line.text}
             </div>
           ))}
           
           {/* Currently typing line */}
           {currentLineIndex < terminalContent.length && (
             <div 
-              className="text-green-400 text-sm md:text-base whitespace-pre-wrap leading-relaxed"
-              style={{ textShadow: '0 0 10px rgba(0, 255, 0, 0.5)' }}
+              className="text-sm md:text-base whitespace-pre-wrap leading-relaxed"
+              style={{ 
+                color: currentTypingColor || '#4ade80',
+                textShadow: currentTypingColor 
+                  ? `0 0 10px ${currentTypingColor}80` 
+                  : '0 0 10px rgba(0, 255, 0, 0.5)',
+              }}
             >
               {currentTypingLine}
               <span 
                 className="inline-block w-2 h-4 ml-0.5 align-middle"
                 style={{ 
-                  backgroundColor: showCursor ? '#4ade80' : 'transparent',
-                  boxShadow: showCursor ? '0 0 10px rgba(0, 255, 0, 0.8)' : 'none',
+                  backgroundColor: showCursor ? (currentTypingColor || '#4ade80') : 'transparent',
+                  boxShadow: showCursor ? `0 0 10px ${currentTypingColor || 'rgba(0, 255, 0, 0.8)'}` : 'none',
                 }}
               />
             </div>

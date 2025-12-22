@@ -113,8 +113,8 @@ const Index = () => {
       
       <audio ref={audioRef} src={playlist[currentTrackIndex].src} loop />
       <WindowsDialog
-        title="hallo tsibkti"
-        subtitle="(Best viewed on iOS fs fs)"
+        title="halllo stunning"
+        subtitle="(Best viewed on iOS or desktop fs fs)"
         message="did the exams cook you like that"
         buttonText="You just goofy joe"
         onClick={handleButtonClick}
