@@ -3,8 +3,7 @@ import backgroundImage from '@/assets/background.png';
 
 const Index = () => {
   const handleButtonClick = () => {
-    // Could navigate somewhere or show another dialog
-    console.log('Button clicked!');
+    window.location.href = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3WcLXj_rxJYYZYzI8LmOHPkI3nCnJSg4M-g&s';
   };
 
   return (
@@ -13,10 +12,10 @@ const Index = () => {
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <WindowsDialog
-        title="hello room"
-        subtitle="(Best viewed on desktop with a 16:9 monitor)"
+        title="hello tsibkti"
+        subtitle="(Best viewed on iOS fs fs)"
         message="where did you gooo"
-        buttonText="you goofy"
+        buttonText="You Goofy"
         onClick={handleButtonClick}
       />
     </main>

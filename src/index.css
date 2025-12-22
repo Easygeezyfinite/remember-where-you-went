@@ -94,7 +94,8 @@
     border-radius: 8px 8px 4px 4px;
     overflow: hidden;
     box-shadow: 
-      0 0 0 1px hsl(var(--win-border-outer)),
+      0 0 0 1px #000,
+      0 0 0 2px hsl(var(--win-border-outer)),
       2px 2px 10px rgba(0, 0, 0, 0.3),
       inset 0 0 0 1px hsl(var(--win-border-inner) / 0.5);
     transition: transform 0.1s ease;
@@ -190,37 +191,53 @@
   }
   
   .windows-globe-icon {
-    width: 32px;
-    height: 32px;
+    width: 16px;
+    height: 16px;
     flex-shrink: 0;
   }
   
   .globe-sphere {
-    width: 32px;
-    height: 32px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     background: linear-gradient(
-      135deg,
-      hsl(200, 85%, 60%) 0%,
-      hsl(200, 80%, 45%) 50%,
-      hsl(200, 75%, 35%) 100%
+      180deg,
+      hsl(200, 100%, 70%) 0%,
+      hsl(210, 100%, 50%) 50%,
+      hsl(220, 100%, 40%) 100%
     );
     position: relative;
     overflow: hidden;
+    border: 1px solid hsl(220, 80%, 30%);
     box-shadow: 
-      inset -3px -3px 6px rgba(0, 0, 0, 0.3),
-      inset 3px 3px 6px rgba(255, 255, 255, 0.3),
-      1px 1px 2px rgba(0, 0, 0, 0.2);
+      inset -1px -1px 3px rgba(0, 0, 0, 0.4),
+      inset 1px 1px 2px rgba(255, 255, 255, 0.5);
+  }
+  
+  .globe-sphere::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 8px;
+    height: 5px;
+    background: hsl(120, 60%, 35%);
+    border-radius: 40% 60% 30% 50%;
+  }
+  
+  .globe-sphere::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 1px;
+    width: 5px;
+    height: 4px;
+    background: hsl(120, 55%, 30%);
+    border-radius: 50% 40% 60% 30%;
   }
   
   .globe-land {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: 
-      radial-gradient(ellipse 40% 30% at 30% 35%, hsl(120, 45%, 35%) 0%, transparent 100%),
-      radial-gradient(ellipse 25% 40% at 65% 55%, hsl(120, 50%, 40%) 0%, transparent 100%),
-      radial-gradient(ellipse 20% 20% at 50% 70%, hsl(120, 40%, 30%) 0%, transparent 100%);
+    display: none;
   }
   
   .windows-subtitle {
