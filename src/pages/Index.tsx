@@ -62,7 +62,7 @@ const Index = () => {
   }, [currentTrackIndex]);
 
   const handleButtonClick = () => {
-    sendNotification('You just goofy');
+    sendNotification('You just goofy joe');
     window.location.href = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3WcLXj_rxJYYZYzI8LmOHPkI3nCnJSg4M-g&s';
   };
 
@@ -116,7 +116,7 @@ const Index = () => {
         title="hallo tsibkti"
         subtitle="(Best viewed on iOS fs fs)"
         message="did the exams cook you like that"
-        buttonText="You just goofy"
+        buttonText="You just goofy joe"
         onClick={handleButtonClick}
         secondButtonText="They kinda did"
         onSecondButtonClick={handleSecondButtonClick}
