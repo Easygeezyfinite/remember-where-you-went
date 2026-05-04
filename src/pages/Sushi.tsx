@@ -98,6 +98,17 @@ export default function Sushi() {
     // FIX: set the ref instead of state
     isDraggingRef.current = true;
   };
+  useEffect(() => {
+    document.body.style.overflow = "auto";
+    document.body.style.overflowY = "scroll";
+    document.documentElement.style.overflow = "auto";
+  
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.overflowY = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, []);
 
   // FIX: empty dependency array — listeners added once, read from refs so no stale closures
   useEffect(() => {
@@ -201,7 +212,14 @@ export default function Sushi() {
 
   return (
     // FIX: replaced overflow-x-hidden with overflow-x-hidden + overflow-y-auto to restore vertical scrolling
-    <div className="min-h-dvh w-full bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 py-8 px-4 pb-64 relative overflow-x-hidden overflow-y-auto">
+    <div
+  className="relative z-20 w-full min-h-screen bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 py-8 px-4 pb-80"
+  style={{
+    overflowY: "scroll",
+    WebkitOverflowScrolling: "touch",
+    touchAction: "pan-y",
+  }}
+>
       <audio ref={audioRef} src={playlist[currentTrackIndex].src} loop />
 
       <div
