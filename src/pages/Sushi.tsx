@@ -1,19 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import RetroMediaPlayer from "@/components/RetroMediaPlayer";
 
 type DateOption = {
   label: string;
   date: string;
   time: string;
-  dateTime: string; // YYYYMMDDTHHMMSS — Google Calendar format
+  dateTime: string;
 };
 
 const dateOptions: DateOption[] = [
   { label: "Friday May 8th", date: "2026-05-08", time: "6:30 PM", dateTime: "20260508T183000" },
   { label: "Saturday May 9th", date: "2026-05-09", time: "6:00 PM", dateTime: "20260509T180000" },
-  { label: "Sunday May 10th", date: "2026-05-10", time: "5:00 PM", dateTime: "20260510T170000" },
+  { label: "Wednesday May 13th", date: "2026-05-13", time: "6:30 PM", dateTime: "20260513T183000" },
 ];
 
-// Inject the Press Start 2P font once on mount, so we don't load it sitewide.
 function useInjectPressStart2P() {
   if (typeof document !== "undefined") {
     const id = "press-start-2p-font";
@@ -27,21 +27,29 @@ function useInjectPressStart2P() {
   }
 }
 
-// All possible UI states the page can be in. Modeling this as a string union
-// instead of multiple booleans makes the rendering logic easier to reason
-// about — exactly one of these is true at any moment.
 type Stage =
-  | "initial"          // YES / NO buttons
-  | "pickDate"         // YES → list of dates
-  | "enterEmailYes"    // date picked → email form
-  | "enterAltDates"    // NO → suggest 3 alternative dates
-  | "enterEmailNo"     // 3 dates entered → email form
-  | "submitting"       // POSTing to /api/notify
-  | "success"          // ✅ all done
-  | "error";           // ❌ something broke
+  | "initial"
+  | "pickDate"
+  | "enterEmailYes"
+  | "enterAltDates"
+  | "enterEmailNo"
+  | "submitting"
+  | "success"
+  | "error";
 
 export default function Sushi() {
   useInjectPressStart2P();
+
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+
+  const playlist = [
+    {
+      src: "/trim1_ethiop.mp3",
+      title: "Tiziti and Jazz",
+      artist: "Background Loop",
+    },
+  ];
 
   const [stage, setStage] = useState<Stage>("initial");
   const [selectedOption, setSelectedOption] = useState<DateOption | null>(null);
@@ -49,24 +57,43 @@ export default function Sushi() {
   const [guestEmail, setGuestEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Fri (5), Sat (6), Sun (0). Empty string treated as valid so the warning
-  // doesn't flash on an untouched input.
-  // Parse manually to avoid the JavaScript UTC-midnight-shifts-to-yesterday
-  // timezone bug: new Date("2026-05-15") parses as midnight UTC, which is
-  // the previous day in any timezone west of London. So we destructure the
-  // string and feed components to the Date constructor (which uses local time).
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.volume = 0.45;
+
+    audio.play().catch(() => {
+      const playOnInteraction = () => {
+        audio.play();
+        document.removeEventListener("click", playOnInteraction);
+      };
+
+      document.addEventListener("click", playOnInteraction);
+    });
+  }, []);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.src = playlist[currentTrackIndex].src;
+    audio.load();
+    audio.play().catch(() => {});
+  }, [currentTrackIndex]);
+
   const validateDay = (dateString: string) => {
     if (!dateString) return true;
+
     const [year, month, day] = dateString.split("-").map(Number);
     const localDate = new Date(year, month - 1, day);
     const weekday = localDate.getDay();
+
     return weekday === 5 || weekday === 6 || weekday === 0;
   };
+
   const allDatesValid = suggestedDates.every(validateDay);
   const hasAtLeastOneDate = suggestedDates.some((d) => d);
-
-  // Loose email check — same regex the server validates with. Catches typos,
-  // doesn't try to verify the inbox actually exists.
   const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
   const handleDateChange = (index: number, value: string) => {
@@ -75,8 +102,6 @@ export default function Sushi() {
     setSuggestedDates(next);
   };
 
-  // Single submit function used by both YES and NO paths since they hit the
-  // same endpoint with slightly different payloads.
   const submit = async () => {
     setStage("submitting");
     setErrorMessage("");
@@ -107,12 +132,12 @@ export default function Sushi() {
 
       if (!res.ok) {
         let msg = `Server returned ${res.status}`;
+
         try {
           const data = await res.json();
           if (data?.error) msg = data.error;
-        } catch {
-          // body wasn't JSON — keep generic message
-        }
+        } catch {}
+
         throw new Error(msg);
       }
 
@@ -123,16 +148,31 @@ export default function Sushi() {
     }
   };
 
+  const handleNextTrack = () => {
+    setCurrentTrackIndex((prev) => (prev + 1) % playlist.length);
+  };
+
+  const handlePrevTrack = () => {
+    setCurrentTrackIndex((prev) => (prev - 1 + playlist.length) % playlist.length);
+  };
+
   const pixelFont = { fontFamily: "'Press Start 2P', cursive" };
 
   return (
-    // No flex centering at the outer level — that was breaking mobile scroll
-    // by pushing the top of the postcard above the viewport with no way to
-    // scroll up to it.
-    <div className="min-h-screen w-full bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 py-8 px-4">
+    <div className="min-h-screen w-full bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 py-8 px-4 relative overflow-hidden">
+      <audio ref={audioRef} src={playlist[currentTrackIndex].src} loop />
+
+      <div className="fixed bottom-4 right-4 z-50 animate-bounce">
+        <RetroMediaPlayer
+          audioRef={audioRef}
+          currentTrack={playlist[currentTrackIndex]}
+          onNext={handleNextTrack}
+          onPrev={handlePrevTrack}
+        />
+      </div>
+
       <div className="relative max-w-2xl w-full mx-auto">
         <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border-8 border-white">
-          {/* Hero image */}
           <div className="relative h-96 overflow-hidden">
             <img
               src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1080&q=80&auto=format&fit=crop"
@@ -142,7 +182,6 @@ export default function Sushi() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
           </div>
 
-          {/* Content */}
           <div className="relative bg-gradient-to-br from-yellow-100 via-orange-50 to-pink-100 p-8">
             <div className="mb-6">
               <h1
@@ -155,7 +194,7 @@ export default function Sushi() {
                   textShadow: "2px 2px 0px #fbbf24, 4px 4px 0px rgba(0,0,0,0.2)",
                 }}
               >
-                🍣 SUSHI DATE INVITE! 🍣
+                🍣 SUSHI DATE INVITE FOR V! 🍣
               </h1>
 
               <p
@@ -167,12 +206,10 @@ export default function Sushi() {
                   color: "#dc2626",
                 }}
               >
-                Let's try and see if one of these dates fit your schedule. See the best option for
-                you miss.
+                Let's try and see if one of these dates fit your schedule. See the best option for you miss.
               </p>
             </div>
 
-            {/* ============= STAGE: initial — Yes / No ============= */}
             {stage === "initial" && (
               <div className="flex gap-4 justify-center mb-6">
                 <button
@@ -203,7 +240,6 @@ export default function Sushi() {
               </div>
             )}
 
-            {/* ============= STAGE: pickDate ============= */}
             {stage === "pickDate" && (
               <div className="mb-6 bg-gradient-to-br from-blue-100 to-purple-100 p-6 rounded-2xl border-4 border-blue-400 shadow-xl">
                 <p
@@ -243,7 +279,6 @@ export default function Sushi() {
               </div>
             )}
 
-            {/* ============= STAGE: enterEmailYes ============= */}
             {stage === "enterEmailYes" && selectedOption && (
               <div className="mb-6 bg-gradient-to-br from-yellow-100 to-pink-100 p-6 rounded-2xl border-4 border-pink-400 shadow-xl">
                 <p
@@ -257,6 +292,7 @@ export default function Sushi() {
                 >
                   You picked {selectedOption.label}!
                 </p>
+
                 <p
                   className="text-center mb-4"
                   style={{
@@ -266,7 +302,7 @@ export default function Sushi() {
                     color: "#9d174d",
                   }}
                 >
-                  Drop your email so I can send you the calendar invite 💌
+                  Drop your email so I can send you the calendar invite miss 💌
                 </p>
 
                 <input
@@ -310,7 +346,6 @@ export default function Sushi() {
               </div>
             )}
 
-            {/* ============= STAGE: enterAltDates ============= */}
             {stage === "enterAltDates" && (
               <div className="bg-white/80 p-6 rounded-xl border-4 border-purple-400">
                 <p
@@ -322,7 +357,7 @@ export default function Sushi() {
                     color: "#7c3aed",
                   }}
                 >
-                  Suggest 3 dates (Friday-Sunday only):
+                  Suggest 3 dates that are better (Friday-Sunday only ha):
                 </p>
 
                 <div className="space-y-3">
@@ -338,6 +373,7 @@ export default function Sushi() {
                           fontSize: "clamp(0.5rem, 1.2vw, 0.65rem)",
                         }}
                       />
+
                       {suggestedDates[index] && !validateDay(suggestedDates[index]) && (
                         <p
                           className="mt-1 text-red-600"
@@ -370,7 +406,6 @@ export default function Sushi() {
               </div>
             )}
 
-            {/* ============= STAGE: enterEmailNo ============= */}
             {stage === "enterEmailNo" && (
               <div className="bg-white/80 p-6 rounded-xl border-4 border-purple-400">
                 <p
@@ -382,7 +417,7 @@ export default function Sushi() {
                     color: "#7c3aed",
                   }}
                 >
-                  Drop your email so I can confirm one of those dates:
+                  Drop your email so I can confirm one of those dates pls thnks:
                 </p>
 
                 <input
@@ -412,7 +447,6 @@ export default function Sushi() {
               </div>
             )}
 
-            {/* ============= STAGE: submitting ============= */}
             {stage === "submitting" && (
               <div className="text-center p-8 bg-blue-100 rounded-xl border-4 border-blue-400">
                 <p
@@ -428,7 +462,6 @@ export default function Sushi() {
               </div>
             )}
 
-            {/* ============= STAGE: success ============= */}
             {stage === "success" && (
               <div className="text-center p-8 bg-green-100 rounded-xl border-4 border-green-400">
                 <p
@@ -442,6 +475,7 @@ export default function Sushi() {
                 >
                   ALL SET! 🎉
                 </p>
+
                 <p
                   style={{
                     ...pixelFont,
@@ -451,11 +485,12 @@ export default function Sushi() {
                   }}
                 >
                   Check your inbox 📬
+                  <br />
+                  Check your spam lowkey for confirmation too lol
                 </p>
               </div>
             )}
 
-            {/* ============= STAGE: error ============= */}
             {stage === "error" && (
               <div className="text-center p-6 bg-red-100 rounded-xl border-4 border-red-400">
                 <p
@@ -469,6 +504,7 @@ export default function Sushi() {
                 >
                   Hmm, that didn't work
                 </p>
+
                 <p
                   className="mb-4"
                   style={{
@@ -480,6 +516,7 @@ export default function Sushi() {
                 >
                   {errorMessage}
                 </p>
+
                 <button
                   onClick={submit}
                   className="px-6 py-3 bg-red-500 hover:bg-red-600 rounded-lg shadow-lg border-4 border-red-700"
@@ -489,7 +526,7 @@ export default function Sushi() {
                     color: "white",
                   }}
                 >
-                  TRY AGAIN
+                  TRY AGAIN MISS
                 </button>
               </div>
             )}
