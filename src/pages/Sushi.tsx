@@ -41,7 +41,12 @@ export default function Sushi() {
   useInjectPressStart2P();
 
   const audioRef = useRef<HTMLAudioElement>(null);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  // FIX: use a ref for dragging state to avoid stale closures in the event listeners
+  const isDraggingRef = useRef(false);
+
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [playerPos, setPlayerPos] = useState({ x: 160, y: 140 });
 
   const playlist = [
     {
@@ -81,6 +86,42 @@ export default function Sushi() {
     audio.load();
     audio.play().catch(() => {});
   }, [currentTrackIndex]);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+
+    dragOffset.current = {
+      x: e.clientX - playerPos.x,
+      y: e.clientY - playerPos.y,
+    };
+
+    // FIX: set the ref instead of state
+    isDraggingRef.current = true;
+  };
+
+  // FIX: empty dependency array — listeners added once, read from refs so no stale closures
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current) return;
+
+      setPlayerPos({
+        x: Math.max(0, Math.min(window.innerWidth - 300, e.clientX - dragOffset.current.x)),
+        y: Math.max(0, Math.min(window.innerHeight - 220, e.clientY - dragOffset.current.y)),
+      });
+    };
+
+    const handleMouseUp = () => {
+      isDraggingRef.current = false;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []); // ← empty deps, runs once only
 
   const validateDay = (dateString: string) => {
     if (!dateString) return true;
@@ -159,17 +200,31 @@ export default function Sushi() {
   const pixelFont = { fontFamily: "'Press Start 2P', cursive" };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 py-8 px-4 relative overflow-x-hidden">
+    // FIX: replaced overflow-x-hidden with overflow-x-hidden + overflow-y-auto to restore vertical scrolling
+    <div className="min-h-dvh w-full bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 py-8 px-4 pb-64 relative overflow-x-hidden overflow-y-auto">
       <audio ref={audioRef} src={playlist[currentTrackIndex].src} loop />
 
-      <div className="fixed bottom-4 left-4 z-[9999] scale-75 sm:scale-100">
-  <RetroMediaPlayer
-    audioRef={audioRef}
-    currentTrack={playlist[currentTrackIndex]}
-    onNext={handleNextTrack}
-    onPrev={handlePrevTrack}
-  />
-</div>
+      <div
+        className="fixed z-[9999] scale-75 sm:scale-100 origin-top-left"
+        style={{
+          left: `${playerPos.x}px`,
+          top: `${playerPos.y}px`,
+        }}
+      >
+        <div
+          onMouseDown={handleMouseDown}
+          className="cursor-move bg-black text-white text-xs px-3 py-2 rounded-t-md select-none"
+        >
+          Hold and drag player 🎵
+        </div>
+
+        <RetroMediaPlayer
+          audioRef={audioRef}
+          currentTrack={playlist[currentTrackIndex]}
+          onNext={handleNextTrack}
+          onPrev={handlePrevTrack}
+        />
+      </div>
 
       <div className="relative max-w-2xl w-full mx-auto">
         <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border-8 border-white">
@@ -194,7 +249,7 @@ export default function Sushi() {
                   textShadow: "2px 2px 0px #fbbf24, 4px 4px 0px rgba(0,0,0,0.2)",
                 }}
               >
-                🍣 SUSHI DATE INVITE FOR V 🍣
+                🍣 SUSHI DATE INVITE FOR V! 🍣
               </h1>
 
               <p
