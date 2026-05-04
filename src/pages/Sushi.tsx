@@ -159,17 +159,17 @@ export default function Sushi() {
   const pixelFont = { fontFamily: "'Press Start 2P', cursive" };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 py-8 px-4 relative overflow-hidden">
+    <div className="min-h-screen w-full bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 py-8 px-4 relative overflow-x-hidden">
       <audio ref={audioRef} src={playlist[currentTrackIndex].src} loop />
 
-      <div className="fixed bottom-4 right-4 z-50 animate-bounce">
-        <RetroMediaPlayer
-          audioRef={audioRef}
-          currentTrack={playlist[currentTrackIndex]}
-          onNext={handleNextTrack}
-          onPrev={handlePrevTrack}
-        />
-      </div>
+      <div className="fixed bottom-4 left-4 z-[9999] scale-75 sm:scale-100">
+  <RetroMediaPlayer
+    audioRef={audioRef}
+    currentTrack={playlist[currentTrackIndex]}
+    onNext={handleNextTrack}
+    onPrev={handlePrevTrack}
+  />
+</div>
 
       <div className="relative max-w-2xl w-full mx-auto">
         <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border-8 border-white">
@@ -194,7 +194,7 @@ export default function Sushi() {
                   textShadow: "2px 2px 0px #fbbf24, 4px 4px 0px rgba(0,0,0,0.2)",
                 }}
               >
-                🍣 SUSHI DATE INVITE FOR V! 🍣
+                🍣 SUSHI DATE INVITE FOR V 🍣
               </h1>
 
               <p
