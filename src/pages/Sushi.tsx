@@ -45,7 +45,7 @@ export default function Sushi() {
 
   const playlist = [
     {
-      src: "/trim1_ethiop.mov",
+      src: "/trim1_ethiop.mp3",
       title: "Tiziti and Jazz",
       artist: "Background Loop",
     },
