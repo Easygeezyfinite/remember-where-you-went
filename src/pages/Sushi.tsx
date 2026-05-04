@@ -187,7 +187,7 @@ export default function Sushi() {
                   textShadow: "2px 2px 0px #fbbf24, 4px 4px 0px rgba(0,0,0,0.2)",
                 }}
               >
-                🍣 SUSHI DATE INVITE FOR V! 🍣
+                🍣 SUSHI DATE INVITE FOR V 🍣
               </h1>
 
               <p
@@ -199,7 +199,7 @@ export default function Sushi() {
                   color: "#dc2626",
                 }}
               >
-                Let's try and see if one of these dates fit your schedule. See the best option for you miss.
+                Let's try and see if one of these dates fit your schedule. See the best option for you miss. Click no for different days
               </p>
             </div>
 
@@ -228,7 +228,7 @@ export default function Sushi() {
                     textShadow: "2px 2px 0px rgba(0,0,0,0.3)",
                   }}
                 >
-                  NO 😢
+                  NO 😳
                 </button>
               </div>
             )}
