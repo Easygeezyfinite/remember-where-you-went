@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import RetroMediaPlayer from "@/components/RetroMediaPlayer";
 
 type DateOption = {
   label: string;
@@ -9,9 +8,10 @@ type DateOption = {
 };
 
 const dateOptions: DateOption[] = [
+  { label: "Wednesday May 6th", date: "2026-05-06", time: "6:00 PM", dateTime: "20260506T180000" },
   { label: "Friday May 8th", date: "2026-05-08", time: "6:30 PM", dateTime: "20260508T183000" },
-  { label: "Saturday May 9th", date: "2026-05-09", time: "6:00 PM", dateTime: "20260509T180000" },
-  { label: "Wednesday May 13th", date: "2026-05-13", time: "6:30 PM", dateTime: "20260513T183000" },
+  { label: "Wednesday May 13th", date: "2026-05-13", time: "6:00 PM", dateTime: "20260513T180000" },
+  { label: "Friday May 15th", date: "2026-05-15", time: "6:30 PM", dateTime: "20260515T183000" },
 ];
 
 function useInjectPressStart2P() {
@@ -41,20 +41,7 @@ export default function Sushi() {
   useInjectPressStart2P();
 
   const audioRef = useRef<HTMLAudioElement>(null);
-  const dragOffset = useRef({ x: 0, y: 0 });
-  // FIX: use a ref for dragging state to avoid stale closures in the event listeners
-  const isDraggingRef = useRef(false);
-
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [playerPos, setPlayerPos] = useState({ x: 160, y: 140 });
-
-  const playlist = [
-    {
-      src: "/trim1_ethiop.mp3",
-      title: "Tiziti and Jazz",
-      artist: "Background Loop",
-    },
-  ];
+  const audioSrc = "/trim1_ethiop.mp3";
 
   const [stage, setStage] = useState<Stage>("initial");
   const [selectedOption, setSelectedOption] = useState<DateOption | null>(null);
@@ -62,6 +49,9 @@ export default function Sushi() {
   const [guestEmail, setGuestEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Try to autoplay the background audio. Most browsers block autoplay until
+  // the user interacts with the page, so we register a one-shot click/touch
+  // listener as a fallback — first interaction kicks off the music.
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -70,39 +60,22 @@ export default function Sushi() {
 
     audio.play().catch(() => {
       const playOnInteraction = () => {
-        audio.play();
+        audio.play().catch(() => {});
         document.removeEventListener("click", playOnInteraction);
+        document.removeEventListener("touchstart", playOnInteraction);
       };
-
       document.addEventListener("click", playOnInteraction);
+      document.addEventListener("touchstart", playOnInteraction);
     });
   }, []);
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.src = playlist[currentTrackIndex].src;
-    audio.load();
-    audio.play().catch(() => {});
-  }, [currentTrackIndex]);
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
-
-    dragOffset.current = {
-      x: e.clientX - playerPos.x,
-      y: e.clientY - playerPos.y,
-    };
-
-    // FIX: set the ref instead of state
-    isDraggingRef.current = true;
-  };
+  // Belt-and-suspenders: explicitly enable scrolling on the body. Some
+  // earlier setups had been disabling it; this resets the styles on mount.
   useEffect(() => {
     document.body.style.overflow = "auto";
     document.body.style.overflowY = "scroll";
     document.documentElement.style.overflow = "auto";
-  
+
     return () => {
       document.body.style.overflow = "";
       document.body.style.overflowY = "";
@@ -110,37 +83,14 @@ export default function Sushi() {
     };
   }, []);
 
-  // FIX: empty dependency array — listeners added once, read from refs so no stale closures
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDraggingRef.current) return;
-
-      setPlayerPos({
-        x: Math.max(0, Math.min(window.innerWidth - 300, e.clientX - dragOffset.current.x)),
-        y: Math.max(0, Math.min(window.innerHeight - 220, e.clientY - dragOffset.current.y)),
-      });
-    };
-
-    const handleMouseUp = () => {
-      isDraggingRef.current = false;
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, []); // ← empty deps, runs once only
-
+  // Parse manually to avoid the JS UTC-midnight-shifts-to-yesterday bug:
+  // new Date("2026-05-15") parses as midnight UTC, which is the previous day
+  // in Calgary. So we destructure and feed components to Date (local time).
   const validateDay = (dateString: string) => {
     if (!dateString) return true;
-
     const [year, month, day] = dateString.split("-").map(Number);
     const localDate = new Date(year, month - 1, day);
     const weekday = localDate.getDay();
-
     return weekday === 5 || weekday === 6 || weekday === 0;
   };
 
@@ -200,49 +150,19 @@ export default function Sushi() {
     }
   };
 
-  const handleNextTrack = () => {
-    setCurrentTrackIndex((prev) => (prev + 1) % playlist.length);
-  };
-
-  const handlePrevTrack = () => {
-    setCurrentTrackIndex((prev) => (prev - 1 + playlist.length) % playlist.length);
-  };
-
   const pixelFont = { fontFamily: "'Press Start 2P', cursive" };
 
   return (
-    // FIX: replaced overflow-x-hidden with overflow-x-hidden + overflow-y-auto to restore vertical scrolling
     <div
-  className="relative z-20 w-full min-h-screen bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 py-8 px-4 pb-80"
-  style={{
-    overflowY: "scroll",
-    WebkitOverflowScrolling: "touch",
-    touchAction: "pan-y",
-  }}
->
-      <audio ref={audioRef} src={playlist[currentTrackIndex].src} loop />
-
-      <div
-        className="fixed z-[9999] scale-75 sm:scale-100 origin-top-left"
-        style={{
-          left: `${playerPos.x}px`,
-          top: `${playerPos.y}px`,
-        }}
-      >
-        <div
-          onMouseDown={handleMouseDown}
-          className="cursor-move bg-black text-white text-xs px-3 py-2 rounded-t-md select-none"
-        >
-          Hold and drag player 🎵
-        </div>
-
-        <RetroMediaPlayer
-          audioRef={audioRef}
-          currentTrack={playlist[currentTrackIndex]}
-          onNext={handleNextTrack}
-          onPrev={handlePrevTrack}
-        />
-      </div>
+      className="relative z-20 w-full min-h-screen bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 py-8 px-4 pb-80"
+      style={{
+        overflowY: "scroll",
+        WebkitOverflowScrolling: "touch",
+        touchAction: "pan-y",
+      }}
+    >
+      {/* Hidden audio — plays in background, no UI */}
+      <audio ref={audioRef} src={audioSrc} loop />
 
       <div className="relative max-w-2xl w-full mx-auto">
         <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border-8 border-white">
